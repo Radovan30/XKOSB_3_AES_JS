@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+    <head>
+        <meta charset="utf-8">
+        <title>XKOSB</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+        <link rel="stylesheet" href="css/style.css">
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+        <script
+            src="https://rawgit.com/victornpb/f639f37373be0f6e82e1/raw/5d8f7ee8b32ae04de087d2377d8086e3389ee411/AES.js"></script>
+    </head>
+<script type="text/javascript">
+    method = Enigmator.aes;
+
+    execute = function ( methodType ) {
+        var input = $( "#input" ).val();
+        var key = $( "#key" ).val();
+        var iv = $( "#iv" ).val();
+        var mode = $( "#mode span" ).text();
+
+        if ( $( "#btn-key-raw" ).hasClass( "active" ) && !$( "#btn-openssl" ).hasClass( "active" ) )
+            key = Enigmator.base16.enc( key );
+        else if ( $( "#btn-key-hex" ).hasClass( "active" ) && $( "#btn-openssl" ).hasClass( "active" ) )
+            key = Enigmator.base16.dec( key );
+
+        if ( $( "#div-iv" ).css( "display" ) == "none" )
+            var str = methodType( input, key, mode );
+        else
+            var str = methodType( input, key, mode, iv );
+        $( "#output" ).val( str );
+    }
+
+    $( document ).ready( function () {
+        $( "#btn-openssl" ).click( function () {
+            if ( !$( this ).hasClass( "active" ) ) {
+                $( "#div-iv" ).hide();
+                $( this ).addClass( "active" );
+            }
+            else {
+                $( "#div-iv" ).show();
+                $( this ).removeClass( "active" );
+            }
+        } )
+
+        $( "#iv" ).prop( "disabled", false );
+
+        $( "#mode .option li" ).click( function () {
+            if ( $( "#mode span" ).text() == "ECB" ) {
+                $( "#iv" ).prop( "disabled", true );
+            }
+            else {
+                $( "#iv" ).prop( "disabled", false );
+            }
+        } )
+    } )
+</script>
+    <body>
+        <!-- SKRIPT S POMOCNYMI FUNKCEMI A SYSTEMOVYM OSETRENIM -->
+        <script src="js/heplerFun.js"></script>
+        <!-- SKRIPT S FUNKCNI LOGIKOU PRO ZASIFROVANI A DESIFROVANI ZPRAVY DO A Z OBRAZKU -->
+        <script src="js/steganografie.js"></script>
+
+        <header>
+            <h1>Metody kódování, šifrování a bezpeč. dat <br class="delete-br">XKOSB</h1>
+            <div class="user">
+                <h2>Autor: Radovan Němec <br>Osobní číslo: P22015 <br><strong
+                        style="color:red; text-transform:uppercase;">Korespondenční úloha č.2
+                    </strong>
+                </h2>
+            </div>
+        </header>
+
+
+
+        <article class="art">
+
+            <!-- ŠIFROVANI ZPRAVY V SOUBORU ZA POMOCI AES -->
+
+            <section class="one" id="">
+                <h1>Šifrování zprávy za pomoci AES</h1>
+                <div class="container">
+                    <p>
+                        Pro zakódování zprávy je potřeba nejprve vybrat libovolný obrázek ve formátu <strong>.JPG,
+                            .JPEG</strong> nebo <strong>.PNG bez průhledného pozadí</strong>.
+                    </p>
+                    <p>
+                        Po vybrání obrázku je potřeba zadat požadovaný text k zakódování a zmáčknout tlačítko "<strong
+                            style="text-transform:uppercase">Provést zakódování</strong>".
+                    </p>
+                    <p>
+                        Pomocí funkcí v jazyce JavaScript proběhne zakódování zprávy do obrázku ve formátu
+                        <strong>.PNG</strong>, který poté stačí uložit do počítače
+                        kliknutím pravého tlačítka myši na obrázek a zvolením "<strong
+                            style="text-transform:uppercase">Uložit obrázek
+                            jako...</strong>".
+                    </p>
+                    <p>
+                        <strong style="color:red; text-transform:uppercase;">Upozornění:</strong><br>
+                        Je potřeba myslet na to, že čím <strong style="text-transform: uppercase;">větší</strong>
+                        obrázek nebo zpráva pro zakodování bude, tím bude
+                        <strong style="text-transform: uppercase;">delší</strong> průběh zakódovávání a také <strong
+                            style="text-transform: uppercase;">větší
+                        </strong> velikost výsledného obrázku.
+                    </p>
+                </div>
+
+
+                <div class="inputfile">
+                    <input type="file" name="inputFile" onchange="">
+                </div>
+
+                <div>
+                    <h3>Zadej šifrovací klíč</h3>
+                    <div class="btn">
+                        <input type="text" name="" id="" placeholder="Zde zadejte šifrovací klíč...">
+                        <select name="plan" id="plan">
+                            <option value="64">64 bit</option>
+                            <option value="128" selected>128 bit</option>
+                            <option value="196">196 bit</option>
+                        </select>
+                    </div>
+                    <div class="btn">
+                        <button type="button" onclick="event.preventDefault(); encodeMessage()">ZAŠIFROVAT</button>
+                    </div>
+                </div>
+
+<div class="content">
+    <center>
+        <div class="main">
+            <div class="title">
+                <h2>AES (Rijndael)</h2>
+            </div>
+
+            <div class="clear"></div>
+
+            <h5>Input :</h5>
+            <textarea id="input" autofocus spellcheck="false"></textarea>
+            <h5 class="left">Key :</h5>
+            <div class="toggle-button">
+                <button id="btn-key-hex" class="grey active small">Hex</button>
+                <button id="btn-key-raw" class="grey small">ASCII</button>
+            </div>
+            <div class="clear"></div>
+            <input type="text" id="key">
+            <div class="clear"></div>
+            <div id="div-iv">
+                <h5>Initial Vector (IV) :</h5>
+                <input type="text" id="iv" maxlength="32">
+                <div class="clear"></div>
+            </div>
+
+            <button id="btn-enc" class="red left">Encrypt</button>
+            <button id="btn-dec" class="blue left">Decrypt</button>
+            <button id="btn-openssl" class="grey left">OpenSSL Mode</button>
+            <div id="mode" class="select left">
+                <button class="grey">Mode : <span>CBC</span></button>
+                <ul class="option">
+                    <li>CBC</li>
+                    <li>ECB</li>
+                    <li>CFB</li>
+                    <li>CTR</li>
+                    <li>OFB</li>
+                </ul>
+            </div>
+            <div class="clear"></div>
+
+            <h5>Output :</h5>
+            <textarea id="output" readonly></textarea>
+            <button id="btn-clear" class="grey left large">Clear</button>
+        </div>
+    </center>
+</div>
+
+
+
+            </section>
+
+
+
+
+
+            <section class="two" id="decodeMsg">
+
+                <h1>Rozšifrování zprávy AES ze souboru</h1>
+
+                <div class="container">
+                    <p>
+                        Nejprve vybereme obrázek se kódovanou zprávou ve formátu <strong>.PNG</strong>.
+                    </p>
+                    <p>
+                        Po výběru obrázku stačí pouze zmáčknout tlačítko "<strong
+                            style="color:rgb(255, 96, 123); text-transform:uppercase">Provést rozkódování</strong>".
+                    </p>
+                    <p>
+                        <strong style="color:red; text-transform:uppercase;">Upozornění:</strong><br>
+                        Text nebude obsahovat diakritiku!
+                    </p>
+                </div>
+                <div class="inputfile">
+                    <input class="input-file" type="file" name="decodeFile" onchange="encodeImage()">
+                </div>
+                <div class="btn">
+                    <div>
+                        <h3>Zadej šifrovací klíč</h3>
+                        <input type="text" name="" id="" placeholder="Zde zadejte šifrovací klíč...">
+                    </div>
+                </div>
+                <div class="btn">
+                    <button type="button" onclick="event.preventDefault(); decodeMsg()">ROZŠIFROVAT</button>
+                </div>
+
+
+                <div class="binary-decode none">
+                    <h3>Výstupní zpráva</h3>
+                    <p class="preview-string"></p>
+                </div>
+
+
+            </section>
+        </article>
+
+<script src="aes.js"></script>
+<script src="sha256.min.js"></script>
+<script src="aes.min.js"> </script>
+<script src="encryption.js"></script>
+    </body>
+
+</html>
